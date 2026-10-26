@@ -1,0 +1,93 @@
+
+<div class="dashboard-page">
+  <nav class="top-navbar">
+    <div class="nav-title">Dashboard</div>
+
+    <button type="button" class="sign-out" (click)="signOut()">
+      <span class="sign-out-icon">⇥</span>
+      Sign Out
+    </button>
+  </nav>
+
+  <main class="dashboard-content">
+    <section class="overview-section">
+      <h1>Overview</h1>
+
+      <div *ngIf="sessionService.isOffline()" class="offline-banner">
+        <h2>Offline Mode</h2>
+        <p>
+          You signed in using locally stored credentials.
+          Live dashboard data is unavailable without API authentication.
+        </p>
+        <p>
+          Sign in again when the API is available to access the live dashboard.
+        </p>
+      </div>
+
+      <div *ngIf="loading && !sessionService.isOffline()" class="status-message">
+        Loading dashboard...
+      </div>
+
+      <div *ngIf="errorMessage && !sessionService.isOffline()"
+           class="error-banner">
+        {{ errorMessage }}
+        <button type="button" (click)="loadDashboard()">Retry</button>
+      </div>
+
+      <div class="chart-grid" *ngIf="!loading && data">
+        <article class="dashboard-card">
+          <div class="card-header">Card Title</div>
+          <div class="chart-container">
+            <canvas #donutCanvas></canvas>
+            <p class="empty-chart" *ngIf="!data.chartDonut?.length">
+              No chart data available
+            </p>
+          </div>
+        </article>
+
+        <article class="dashboard-card">
+          <div class="card-header">Card Title</div>
+          <div class="chart-container">
+            <canvas #barCanvas></canvas>
+            <p class="empty-chart" *ngIf="!data.chartBar?.length">
+              No chart data available
+            </p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="user-section" *ngIf="!loading && data">
+      <h2>User List</h2>
+
+      <div class="table-wrapper">
+        <table class="user-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th *ngFor="let column of userColumns">
+                {{ getColumnLabel(column) }}
+              </th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr *ngFor="let user of users; let i = index">
+              <td>{{ i + 1 }}</td>
+              <td *ngFor="let column of userColumns">
+                {{ displayValue(user[column]) }}
+              </td>
+            </tr>
+
+            <tr *ngIf="users.length === 0">
+              <td [attr.colspan]="userColumns.length + 1"
+                  class="empty-table">
+                No users available
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</div>
